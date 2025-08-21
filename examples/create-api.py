@@ -26,6 +26,10 @@ if env_val is not None:
 env_val = os.getenv('OPENAI_API_KEY')
 if env_val is not None:
     os.environ['OPENAI_API_KEY'] = env_val
+# tavily
+env_val = os.getenv('TAVILY_API_KEY')
+if env_val is not None:
+    os.environ['TAVILY_API_KEY'] = env_val
 
 # SECTION: inputs
 # NOTE: model provider
@@ -34,18 +38,17 @@ model_provider = "openai"
 model_name = "gpt-4o-mini"
 
 # NOTE: mcp source
+# tavily remote mcp
 mcp_source = {
-    "eos-models-mcp": {
-        "transport": "streamable_http",
-        "url": "http://127.0.0.1:8000/eos-models-mcp/mcp/"
-    },
-    "flash-calculations-mcp": {
-        "transport": "streamable_http",
-        "url": "http://127.0.0.1:8000/flash-calculations-mcp/mcp/"
-    },
-    "thermodynamic-properties-mcp": {
-        "transport": "streamable_http",
-        "url": "http://127.0.0.1:8000/thermodynamic-properties-mcp/mcp/"
+    "tavily-remote": {
+        "command": "npx",
+        "args": [
+            "-y",
+            "mcp-remote",
+            f"https://mcp.tavily.com/mcp/?tavilyApiKey={os.getenv('TAVILY_API_KEY')}"
+        ],
+        "transport": "stdio",
+        "env": {}
     }
 }
 
@@ -57,21 +60,13 @@ You can use tools to perform calculations, retrieve data, and assist with variou
 Based on the results from the tools, you will provide a final answer to the user.
 """
 
-# SECTION: Create the FastAPI application instance
-# app = create_api(
-#     model_name=model_name,
-#     agent_name="ThermoAgent",
-#     agent_prompt=agent_prompt,
-#     mcp_source=mcp_source,
-#     memory_mode=False
-# )
 
 # SECTION: Run the FastAPI application
 if __name__ == "__main__":
     app_instance = asyncio.run(create_api(
         model_provider=model_provider,
         model_name=model_name,
-        agent_name="ThermoAgent",
+        agent_name="Data-Agent",
         agent_prompt=agent_prompt,
         mcp_source=mcp_source,
         memory_mode=True
