@@ -1,9 +1,12 @@
 from .thermo_agent import ThermoAgent
 from .mcp_manager import MCPManager
 from .main import create_agent
+from .prompts import DATA_AGENT_PROMPT, EQUATIONS_AGENT_PROMPT
 
 __all__ = [
     "ThermoAgent",
     "MCPManager",
-    "create_agent"
+    "create_agent",
+    "DATA_AGENT_PROMPT",
+    "EQUATIONS_AGENT_PROMPT",
 ]
