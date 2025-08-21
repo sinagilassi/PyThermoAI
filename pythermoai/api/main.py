@@ -22,7 +22,14 @@ from langchain_core.messages import (
 )
 # locals
 from .ai_api import ThermoAIAPI
-from ..agents import create_agent
+from . import data_agent, equations_agent
+from ..agents import (
+    create_agent,
+    DATA_AGENT_PROMPT,
+    EQUATIONS_AGENT_PROMPT,
+    DATA_AGENT_NAME,
+    EQUATIONS_AGENT_NAME
+)
 from ..models import (
     ChatMessage,
     AgentConfig,
@@ -59,12 +66,11 @@ DEFAULT_OUTPUT_TOKENS = default_token_metadata['output_tokens']
 
 # SECTION: create_api function
 
-
 async def create_api(
     model_provider: str,
     model_name: str,
-    agent_name: str,
-    agent_prompt: str,
+    data_agent_prompt: Optional[str] = None,
+    equations_agent_prompt: Optional[str] = None,
     mcp_source: Optional[
         Union[
         Dict[str, Dict[str, str]],
@@ -86,10 +92,10 @@ async def create_api(
         The provider of the model to be used (e.g., "openai", "google").
     model_name : str
         The name of the model to be used for the agent.
-    agent_name : str
-        The name of the agent.
-    agent_prompt : str
-        The prompt to be used for the agent.
+    data_agent_prompt : str, optional
+        The prompt for the data agent.
+    equations_agent_prompt : str, optional
+        The prompt for the equations agent.
     mcp_source : Optional[Union[Dict[str, Dict[str, str]],
         Dict[str, Dict[str, str | List[str]]], str, Path]]
         A dictionary containing the MCP configurations or a path to a YAML file containing the MCP configurations.
@@ -146,29 +152,57 @@ async def create_api(
     app.state.model_provider = model_provider
     # model name
     app.state.model_name = model_name
-    # agent name
-    app.state.agent_name = agent_name
-    # agent prompt
-    app.state.agent_prompt = agent_prompt
+    # data agent prompt
+    app.state.data_agent_prompt = data_agent_prompt or DATA_AGENT_PROMPT
+    # equations agent prompt
+    app.state.equations_agent_prompt = \
+        equations_agent_prompt or EQUATIONS_AGENT_PROMPT
     # mcp source
     app.state.mcp_source = mcp_source
     # memory mode
     app.state.memory_mode = memory_mode
 
-    # SECTION: agent initialization if app.state.agent does not exist
-    if not hasattr(app.state, "agent"):
+    # SECTION: agent initialization if app.state.agents does not exist
+    # initialize app.state.agents
+    app.state.agents = {}
+
+    # NOTE: data agent
+    # check data agent not in app.state.agents
+    if "data_agent" not in app.state.agents:
+        # prompt
+        data_agent_prompt_ = app.state.data_agent_prompt
+        # create data agent
         app.state.agent = await create_agent(
             model_provider=model_provider,
             model_name=model_name,
-            agent_name=agent_name,
-            agent_prompt=agent_prompt,
+            agent_name=DATA_AGENT_NAME,
+            agent_prompt=data_agent_prompt_,
             mcp_source=mcp_source,
             memory_mode=memory_mode,
             **kwargs
         )
         # log
         logger.info(
-            f"MoziChem agent created successfully with model: {model_name}, agent: {agent_name}")
+            f"data-agent agent created successfully with model: {model_name}, agent: {DATA_AGENT_NAME}")
+
+    # NOTE: equations agent
+    # check equations agent not in app.state.agents
+    if "equations_agent" not in app.state.agents:
+        # prompt
+        equations_agent_prompt_ = app.state.equations_agent_prompt
+        # create equations agent
+        app.state.agent = await create_agent(
+            model_provider=model_provider,
+            model_name=model_name,
+            agent_name=EQUATIONS_AGENT_NAME,
+            agent_prompt=equations_agent_prompt_,
+            mcp_source=mcp_source,
+            memory_mode=memory_mode,
+            **kwargs
+        )
+        # log
+        logger.info(
+            f"equations-agent agent created successfully with model: {model_name}, agent: {EQUATIONS_AGENT_NAME}")
 
     # SECTION: websockets configurations
     # set client
@@ -204,6 +238,8 @@ async def create_api(
                 websocket_clients.remove(ws)
 
     # SECTION: Register the API routes
+    app.include_router(data_agent.config_router)
+    app.include_router(equations_agent.config_router)
 
     async def agent_initialization():
         """
@@ -548,7 +584,12 @@ async def create_api(
 
         try:
             # SECTION: Ensure the agent is created
-            agent = getattr(app.state, "agent", None)
+            agent_selection = user_message.agent_selection
+            if agent_selection and hasattr(app.state, "agents") and agent_selection in app.state.agents:
+                agent = app.state.agents[agent_selection]
+            else:
+                agent = getattr(app.state, "agent", None)
+
             if agent is None:
                 logger.error("MoziChem agent is not created yet.")
                 return ChatMessage(
@@ -682,7 +723,12 @@ async def create_api(
 
         try:
             # SECTION: Ensure the agent is created
-            agent = getattr(app.state, "agent", None)
+            agent_selection = user_message.agent_selection
+            if agent_selection and hasattr(app.state, "agents") and agent_selection in app.state.agents:
+                agent = app.state.agents[agent_selection]
+            else:
+                agent = getattr(app.state, "agent", None)
+
             if agent is None:
                 logger.error("MoziChem agent is not created yet.")
                 return ChatMessage(
