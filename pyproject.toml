@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pythermoai"
-version = "0.1.1"
+version = "0.1.0"
 description = "PyThermoAI is a Python package that leverages intelligent agents to search the web for thermodynamic data and equations, and seamlessly integrates the results into PyThermoDB."
 authors = [
     { name = "Sina Gilassi", email = "sina.gilassi@gmail.com" }
@@ -26,6 +26,7 @@ dependencies = [
     "langchain-anthropic>=0.3.18",
     "langchain-google-genai>=2.1.9",
     "langchain-openai>=0.3.29",
+    "langchain-xai>=0.2.5",
     "pydantic>=2.11.7",
     "pydantic-settings>=2.10.1",
     "websockets>=15.0.1",
