@@ -69,7 +69,7 @@ class LlmManager:
             response = self.model.invoke(self.ping_messages)
 
             # check if response contains 'pong'
-            if "pong" not in response.content.lower():
+            if "pong" not in response.content:
                 logger.warning("Ping response did not contain 'pong'.")
                 return False
 
@@ -102,6 +102,10 @@ class LlmManager:
             The name of the model to be initialized.
         kwargs : dict
             Additional keyword arguments for future extensions.
+            - temperature: float
+                Controls the randomness of the model's responses.
+            - max_tokens: int
+                The maximum number of tokens for the model's response.
 
         Returns
         -------
