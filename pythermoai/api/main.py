@@ -32,7 +32,6 @@ from ..agents import (
 )
 from ..models import (
     ChatMessage,
-    AgentConfig,
     LlmConfig,
     ApiConfigSummary,
     OverallSettings,
@@ -166,44 +165,6 @@ async def create_api(
     # initialize app.state.agents
     app.state.agents = {}
 
-    # NOTE: data agent
-    # check data agent not in app.state.agents
-    if "data_agent" not in app.state.agents:
-        # prompt
-        data_agent_prompt_ = app.state.data_agent_prompt
-        # create data agent
-        app.state.agent = await create_agent(
-            model_provider=model_provider,
-            model_name=model_name,
-            agent_name=DATA_AGENT_NAME,
-            agent_prompt=data_agent_prompt_,
-            mcp_source=mcp_source,
-            memory_mode=memory_mode,
-            **kwargs
-        )
-        # log
-        logger.info(
-            f"data-agent agent created successfully with model: {model_name}, agent: {DATA_AGENT_NAME}")
-
-    # NOTE: equations agent
-    # check equations agent not in app.state.agents
-    if "equations_agent" not in app.state.agents:
-        # prompt
-        equations_agent_prompt_ = app.state.equations_agent_prompt
-        # create equations agent
-        app.state.agent = await create_agent(
-            model_provider=model_provider,
-            model_name=model_name,
-            agent_name=EQUATIONS_AGENT_NAME,
-            agent_prompt=equations_agent_prompt_,
-            mcp_source=mcp_source,
-            memory_mode=memory_mode,
-            **kwargs
-        )
-        # log
-        logger.info(
-            f"equations-agent agent created successfully with model: {model_name}, agent: {EQUATIONS_AGENT_NAME}")
-
     # SECTION: websockets configurations
     # set client
     websocket_clients = set()
@@ -241,20 +202,45 @@ async def create_api(
     app.include_router(data_agent.config_router)
     app.include_router(equations_agent.config_router)
 
+    # SECTION: API routes
     async def agent_initialization():
         """
-        Initialize the agent with the provided parameters.
+        Initialize the agents with the initial provided parameters.
         """
         try:
-            app.state.agent = await create_agent(
-                model_provider=model_provider,
-                model_name=model_name,
-                agent_name=agent_name,
-                agent_prompt=agent_prompt,
-                mcp_source=mcp_source,
-                memory_mode=memory_mode,
-                **kwargs
-            )
+            # NOTE: data agent
+            # check data agent not in app.state.agents
+            if DATA_AGENT_NAME not in app.state.agents:
+                # ! create data agent
+                app.state.agents[DATA_AGENT_NAME] = await create_agent(
+                    model_provider=app.state.model_provider,
+                    model_name=app.state.model_name,
+                    agent_name=DATA_AGENT_NAME,
+                    agent_prompt=app.state.data_agent_prompt,
+                    mcp_source=app.state.mcp_source,
+                    memory_mode=app.state.memory_mode,
+                    **kwargs
+                )
+                # log
+                logger.info(
+                    f"data-agent agent created successfully with model: {model_name}, agent: {DATA_AGENT_NAME}")
+
+            # NOTE: equations agent
+            # check equations agent not in app.state.agents
+            if EQUATIONS_AGENT_NAME not in app.state.agents:
+                # ! create equations agent
+                app.state.agents[EQUATIONS_AGENT_NAME] = await create_agent(
+                    model_provider=app.state.model_provider,
+                    model_name=app.state.model_name,
+                    agent_name=EQUATIONS_AGENT_NAME,
+                    agent_prompt=app.state.equations_agent_prompt,
+                    mcp_source=app.state.mcp_source,
+                    memory_mode=app.state.memory_mode,
+                    **kwargs
+                )
+                # log
+                logger.info(
+                    f"equations-agent agent created successfully with model: {model_name}, agent: {EQUATIONS_AGENT_NAME}")
             return JSONResponse(
                 content={
                     "message": "Agent initialized successfully",
@@ -269,7 +255,7 @@ async def create_api(
                 detail=f"Failed to initialize agent: {e}"
             )
 
-    @app.get("/mozichem-ai")
+    @app.get("/pythermoai")
     async def root():
         """
         Root endpoint to check if the API is running.
@@ -303,27 +289,6 @@ async def create_api(
             status_code=200
         )
 
-    @app.get("/agent-config")
-    async def get_agent_config():
-        """
-        Endpoint to get the current agent configuration.
-        """
-        return JSONResponse(
-            content={
-                "message": "Agent configuration retrieved successfully",
-                "success": True,
-                "data": {
-                    "model_provider": app.state.model_provider,
-                    "model_name": app.state.model_name,
-                    "agent_name": app.state.agent_name,
-                    "agent_prompt": app.state.agent_prompt,
-                    "mcp_source": app.state.mcp_source,
-                    "memory_mode": app.state.memory_mode
-                },
-            },
-            status_code=200
-        )
-
     @app.get("/llm-config")
     async def get_llm_config():
         """
@@ -339,86 +304,6 @@ async def create_api(
             },
             status_code=200
         )
-
-    @app.post("/agent-config")
-    async def set_agent_config(
-        agent_config: AgentConfig
-    ):
-        """
-        Config the agent with the necessary parameters.
-        """
-        try:
-            # SECTION: extract parameters from the agent_config
-            model_provider_ = agent_config.model_provider
-            model_name_ = agent_config.model_name
-            agent_name_ = agent_config.agent_name
-            agent_prompt_ = agent_config.agent_prompt
-            mcp_source_ = agent_config.mcp_source
-            memory_mode_ = agent_config.memory_mode
-
-            # SECTION: validate the agent configuration
-            # NOTE: update the initial arguments
-            nonlocal model_provider, model_name, agent_name, agent_prompt, mcp_source, memory_mode
-
-            # update the initial arguments
-            if model_provider_ is not None:
-                model_provider = model_provider_
-            if model_name_ is not None:
-                model_name = model_name_
-            if agent_name_ is not None:
-                agent_name = agent_name_
-            if agent_prompt_ is not None:
-                agent_prompt = agent_prompt_
-            if mcp_source_ is not None:
-                mcp_source = mcp_source_
-            if memory_mode_ is not None:
-                memory_mode = memory_mode_
-
-            # SECTION: llm configuration
-            app.state.temperature = kwargs.get(
-                'temperature',
-                DEFAULT_TEMPERATURE
-            )
-            app.state.max_tokens = kwargs.get(
-                'max_tokens',
-                DEFAULT_MAX_TOKENS
-            )
-
-            # update kwargs with the new values
-            kwargs['temperature'] = app.state.temperature
-            kwargs['max_tokens'] = app.state.max_tokens
-
-            # NOTE: update the app state
-            app.state.model_provider = model_provider
-            app.state.model_name = model_name
-            app.state.agent_name = agent_name
-            app.state.agent_prompt = agent_prompt
-            app.state.mcp_source = mcp_source
-            app.state.memory_mode = memory_mode
-
-            # NOTE: create or update the agent in app.state
-            app.state.agent = await create_agent(
-                model_provider=model_provider,
-                model_name=model_name,
-                agent_name=agent_name,
-                agent_prompt=agent_prompt,
-                mcp_source=mcp_source,
-                memory_mode=memory_mode,
-                **kwargs
-            )
-
-            # return
-            return JSONResponse(
-                content={
-                    "message": f"Agent configured successfully with model: {model_provider} - {model_name}, agent: {agent_name}, prompt: {agent_prompt}, mcp_source: {mcp_source}, memory_mode: {memory_mode}",
-                    "success": True
-                },
-                status_code=200
-            )
-        except Exception as e:
-            logger.error(f"Error configuring agent: {e}")
-            raise HTTPException(
-                status_code=500, detail=f"Failed to configure agent: {e}")
 
     @app.post("/mcp-config")
     async def set_mcp_config(
@@ -446,21 +331,11 @@ async def create_api(
 
             # SECTION: update the mcp_source in app.state
             app.state.mcp_source = validated_config
+
             # log
             logger.info(
                 f"Updated MCP source validated_config: {validated_config}")
             logger.info(f"Updated MCP source: {app.state.mcp_source}")
-
-            # SECTION: reinitialize the agent with the new MCP configuration
-            app.state.agent = await create_agent(
-                model_provider=app.state.model_provider,
-                model_name=app.state.model_name,
-                agent_name=app.state.agent_name,
-                agent_prompt=app.state.agent_prompt,
-                mcp_source=app.state.mcp_source,
-                memory_mode=app.state.memory_mode,
-                **kwargs
-            )
 
             # NOTE: return success message
             logger.info("MCP source configured successfully")
@@ -521,17 +396,6 @@ async def create_api(
                 # app state
                 app.state.max_tokens = max_tokens_
 
-            # SECTION: reinitialize the agent with the new LLM configuration
-            app.state.agent = await create_agent(
-                model_provider=model_provider,
-                model_name=model_name,
-                agent_name=agent_name,
-                agent_prompt=agent_prompt,
-                mcp_source=mcp_source,
-                memory_mode=memory_mode,
-                **kwargs
-            )
-
             # NOTE: return success message
             logger.info("LLM configured successfully")
             return JSONResponse(
@@ -570,6 +434,8 @@ async def create_api(
         user_content = user_message.content
         # timestamp
         timestamp = user_message.timestamp
+        # agent selection
+        agent_selection = user_message.agent_selection
 
         # NOTE: Generate a new thread if thread_id is not provided
         if not thread_id:
@@ -584,22 +450,30 @@ async def create_api(
 
         try:
             # SECTION: Ensure the agent is created
+            # NOTE: check if agent_selection is provided
             agent_selection = user_message.agent_selection
-            if agent_selection and hasattr(app.state, "agents") and agent_selection in app.state.agents:
+
+            # check if agent_selection is provided and exists in app.state.agents
+            if (
+                agent_selection and
+                hasattr(app.state, "agents") and
+                agent_selection in app.state.agents
+            ):
                 agent = app.state.agents[agent_selection]
             else:
                 agent = getattr(app.state, "agent", None)
 
             if agent is None:
-                logger.error("MoziChem agent is not created yet.")
+                logger.error("ThermoAI agent is not created yet.")
                 return ChatMessage(
                     role="assistant",
-                    content="MoziChem agent is not created yet.",
+                    content="ThermoAI agent is not created yet.",
                     thread_id=thread_id,
                     response_time=None,
                     timestamp=timestamp,
                     input_tokens=DEFAULT_INPUT_TOKENS,
-                    output_tokens=DEFAULT_OUTPUT_TOKENS
+                    output_tokens=DEFAULT_OUTPUT_TOKENS,
+                    agent_selection=agent_selection
                 )
 
             # NOTE: Measure computation time
@@ -639,14 +513,18 @@ async def create_api(
                     # NOTE: main response
                     return ChatMessage(
                         role="assistant",
-                        content=getattr(response_message,
-                                        "content", str(response_message)),
+                        content=getattr(
+                            response_message,
+                            "content",
+                            str(response_message)
+                        ),
                         thread_id=thread_id,
                         response_time=response_time,
                         timestamp=timestamp,
                         messages=messages,
                         input_tokens=input_tokens,
-                        output_tokens=output_tokens
+                        output_tokens=output_tokens,
+                        agent_selection=agent_selection
                     )
                 else:
                     logger.error("Agent did not return any messages.")
@@ -658,7 +536,8 @@ async def create_api(
                         timestamp=timestamp,
                         messages=[],
                         input_tokens=DEFAULT_INPUT_TOKENS,
-                        output_tokens=DEFAULT_OUTPUT_TOKENS
+                        output_tokens=DEFAULT_OUTPUT_TOKENS,
+                        agent_selection=agent_selection
                     )
             else:
                 logger.error("Agent response is not a valid dictionary.")
@@ -670,7 +549,8 @@ async def create_api(
                     timestamp=timestamp,
                     messages=[],
                     input_tokens=DEFAULT_INPUT_TOKENS,
-                    output_tokens=DEFAULT_OUTPUT_TOKENS
+                    output_tokens=DEFAULT_OUTPUT_TOKENS,
+                    agent_selection=agent_selection
                 )
         except Exception as e:
             logger.error(f"Error in user_agent_chat: {e}")
@@ -682,7 +562,8 @@ async def create_api(
                 timestamp=timestamp,
                 messages=[],
                 input_tokens=DEFAULT_INPUT_TOKENS,
-                output_tokens=DEFAULT_OUTPUT_TOKENS
+                output_tokens=DEFAULT_OUTPUT_TOKENS,
+                agent_selection=agent_selection
             )
 
     @app.post("/chat-stream", response_model=ChatMessage)
@@ -709,6 +590,8 @@ async def create_api(
         user_content = user_message.content
         # timestamp
         timestamp = user_message.timestamp
+        # agent selection
+        agent_selection = user_message.agent_selection
 
         # NOTE: Generate a new thread if thread_id is not provided
         if not thread_id:
@@ -724,7 +607,11 @@ async def create_api(
         try:
             # SECTION: Ensure the agent is created
             agent_selection = user_message.agent_selection
-            if agent_selection and hasattr(app.state, "agents") and agent_selection in app.state.agents:
+            if (
+                agent_selection and
+                hasattr(app.state, "agents") and
+                agent_selection in app.state.agents
+            ):
                 agent = app.state.agents[agent_selection]
             else:
                 agent = getattr(app.state, "agent", None)
@@ -738,7 +625,8 @@ async def create_api(
                     response_time=None,
                     timestamp=timestamp,
                     input_tokens=DEFAULT_INPUT_TOKENS,
-                    output_tokens=DEFAULT_OUTPUT_TOKENS
+                    output_tokens=DEFAULT_OUTPUT_TOKENS,
+                    agent_selection=agent_selection
                 )
 
             # NOTE: Measure computation time
@@ -767,7 +655,8 @@ async def create_api(
                         timestamp=timestamp,
                         messages=[],
                         input_tokens=DEFAULT_INPUT_TOKENS,
-                        output_tokens=DEFAULT_OUTPUT_TOKENS
+                        output_tokens=DEFAULT_OUTPUT_TOKENS,
+                        agent_selection=agent_selection
                     )
 
                 # NOTE: iterate through the messages in the chunk
@@ -812,7 +701,8 @@ async def create_api(
                     timestamp=timestamp,
                     messages=messages,
                     input_tokens=input_tokens,
-                    output_tokens=output_tokens
+                    output_tokens=output_tokens,
+                    agent_selection=agent_selection
                 )
             else:
                 # NOTE: no messages returned
@@ -825,7 +715,8 @@ async def create_api(
                     timestamp=timestamp,
                     messages=[],
                     input_tokens=DEFAULT_INPUT_TOKENS,
-                    output_tokens=DEFAULT_OUTPUT_TOKENS
+                    output_tokens=DEFAULT_OUTPUT_TOKENS,
+                    agent_selection=agent_selection
                 )
         except Exception as e:
             logger.error(f"Error in user_agent_chat_stream: {e}")
@@ -837,11 +728,12 @@ async def create_api(
                 timestamp=timestamp,
                 messages=[],
                 input_tokens=DEFAULT_INPUT_TOKENS,
-                output_tokens=DEFAULT_OUTPUT_TOKENS
+                output_tokens=DEFAULT_OUTPUT_TOKENS,
+                agent_selection=agent_selection
             )
 
     # SECTION: Return the FastAPI application instance
-    @app.get("/app-info", response_model=ApiConfigSummary)
+    @app.get("/info", response_model=ApiConfigSummary)
     async def get_app_info():
         """
         Return app info, agent details, llm details, and overall settings as an ApiConfigSummary model.
@@ -857,13 +749,24 @@ async def create_api(
                 description=ThermoAIAPI_.description,
             )
 
-            # NOTE: Agent details
-            agent_details = AgentDetails(
+            # NOTE: Data agent details
+            data_agent_details = AgentDetails(
                 exists=agent_obj is not None,
                 model_provider=app.state.model_provider,
                 model_name=app.state.model_name,
-                agent_name=app.state.agent_name,
-                agent_prompt=app.state.agent_prompt,
+                agent_name=DATA_AGENT_NAME,
+                agent_prompt=app.state.data_agent_prompt,
+                mcp_source=app.state.mcp_source,
+                memory_mode=app.state.memory_mode,
+            )
+
+            # NOTE: Equations agent details
+            equations_agent_details = AgentDetails(
+                exists=agent_obj is not None,
+                model_provider=app.state.model_provider,
+                model_name=app.state.model_name,
+                agent_name=EQUATIONS_AGENT_NAME,
+                agent_prompt=app.state.equations_agent_prompt,
                 mcp_source=app.state.mcp_source,
                 memory_mode=app.state.memory_mode,
             )
@@ -890,7 +793,10 @@ async def create_api(
             # NOTE: the ApiConfigSummary model
             ApiConfigSummary_ = ApiConfigSummary(
                 app=app_info,
-                agent=agent_details,
+                agent=[
+                    data_agent_details,
+                    equations_agent_details
+                ],
                 llm=llm_details,
                 settings=overall_settings
             )

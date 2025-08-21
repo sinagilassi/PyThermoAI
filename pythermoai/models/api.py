@@ -43,6 +43,6 @@ class OverallSettings(BaseModel):
 
 class ApiConfigSummary(BaseModel):
     app: AppInfo
-    agent: AgentDetails
+    agent: List[AgentDetails]
     llm: LlmDetails
     settings: OverallSettings
