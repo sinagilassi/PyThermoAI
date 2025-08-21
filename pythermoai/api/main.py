@@ -262,7 +262,7 @@ async def create_api(
         """
         return JSONResponse(
             content={
-                "message": "MoziChem AI API is running",
+                "message": "PyThermoAI API is running",
                 "success": True
             },
             status_code=200

@@ -7,7 +7,7 @@ import logging
 from dotenv import load_dotenv
 # local
 from pythermoai.api import create_api
-from .prompts import (
+from prompts import (
     DATA_AGENT_PROMPT,
     EQUATIONS_AGENT_PROMPT,
     EQUATIONS_AGENT_PROMPT_2
@@ -57,7 +57,7 @@ mcp_source = {
     }
 }
 
-mcp_source = None
+# mcp_source = None
 
 # SECTION: Run the FastAPI application
 if __name__ == "__main__":

@@ -92,7 +92,7 @@ async def get_data_agent_config(request: Request):
         config = {
             "model_provider": app.state.model_provider,
             "model_name": app.state.model_name,
-            "agent_name": app.state.agent_name,
+            "agent_name": DATA_AGENT_NAME,
             "agent_prompt": app.state.data_agent_prompt,
             "mcp_source": app.state.mcp_source,
             "memory_mode": app.state.memory_mode
