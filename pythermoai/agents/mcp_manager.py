@@ -8,7 +8,7 @@ from typing import (
 from pathlib import Path
 # local
 from ..models import stdioMCP, streamableHttpMCP
-from pythermoai.utils import load_yaml_file
+from ..utils import load_yaml_file
 
 # NOTE: logger
 logger = logging.getLogger(__name__)

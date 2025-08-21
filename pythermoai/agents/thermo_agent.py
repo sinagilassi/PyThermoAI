@@ -14,8 +14,8 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 from langgraph.checkpoint.memory import MemorySaver
 from langchain_core.tools import tool
 # local
-from pythermoai.models import stdioMCP, streamableHttpMCP
-from pythermoai.agents.mcp_manager import MCPManager
+from ..models import stdioMCP, streamableHttpMCP
+from .mcp_manager import MCPManager
 
 # NOTE: logger
 logger = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ def add(a: int, b: int) -> int:
 
 class ThermoAgent:
     '''
-    MoziChem Agent class for creating and managing agents using langchain and langgraph.
+    Thermo Agent class for creating and managing agents using langchain and langgraph.
     '''
     # NOTE: attributes
     # mcp lists
