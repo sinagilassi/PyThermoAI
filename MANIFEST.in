@@ -1,0 +1,16 @@
+# Include all files in the ui directory and subdirectories
+recursive-include pythermoai/ui *
+
+# Include configuration files
+include pythermoai/config/*.yml
+
+# Include data files if any
+include pythermoai/data/*.csv
+
+# Include license and readme
+include LICENSE
+include README.md
+
+# Exclude Python cache files
+global-exclude __pycache__
+global-exclude *.py[co]
