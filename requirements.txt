@@ -6,7 +6,7 @@ langchain-mcp-adapters>=0.1.8
 langchain-anthropic>=0.3.18
 langchain-google-genai>=2.1.9
 langchain-openai>=0.3.29
-langchain-groq
+langchain-xai>=0.2.5
 pydantic>=2.11.7
 pydantic-settings>=2.10.1
 websockets>=15.0.1
