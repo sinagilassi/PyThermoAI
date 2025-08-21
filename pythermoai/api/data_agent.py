@@ -3,7 +3,7 @@ import logging
 from fastapi import HTTPException, APIRouter, Request
 from fastapi.responses import JSONResponse
 # local
-from ..agents import create_agent, DATA_AGENT_NAME, DATA_AGENT_PROMPT
+from ..agents import create_agent, DATA_AGENT_NAME
 from ..models import AgentConfig
 
 # NOTE: logger

@@ -11,3 +11,9 @@ default_token_metadata = {
     "input_tokens": -1,
     "output_tokens": -1
 }
+
+# set default temperature and max tokens
+default_model_settings = {
+    "temperature": 0.0,
+    "max_tokens": 2048
+}

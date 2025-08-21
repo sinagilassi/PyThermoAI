@@ -7,6 +7,11 @@ import logging
 from dotenv import load_dotenv
 # local
 from pythermoai.api import create_api
+from .prompts import (
+    DATA_AGENT_PROMPT,
+    EQUATIONS_AGENT_PROMPT,
+    EQUATIONS_AGENT_PROMPT_2
+)
 
 # NOTE: logger
 logger = logging.getLogger(__name__)
@@ -54,20 +59,13 @@ mcp_source = {
 
 mcp_source = None
 
-# NOTE: agent prompt
-agent_prompt = """You are a helpful assistant that can perform various tasks using tools provided by the EOS Models and Flash Calculations MCP servers.
-You can use tools to perform calculations, retrieve data, and assist with various tasks.
-Based on the results from the tools, you will provide a final answer to the user.
-"""
-
-
 # SECTION: Run the FastAPI application
 if __name__ == "__main__":
     app_instance = asyncio.run(create_api(
         model_provider=model_provider,
         model_name=model_name,
-        agent_name="Data-Agent",
-        agent_prompt=agent_prompt,
+        data_agent_prompt=DATA_AGENT_PROMPT,
+        equations_agent_prompt=EQUATIONS_AGENT_PROMPT,
         mcp_source=mcp_source,
         memory_mode=True
     ))

@@ -44,7 +44,7 @@ from ..models import (
 )
 from ..memory import generate_thread
 from ..utils import agent_message_analyzer, message_token_counter
-from ..config import default_token_metadata
+from ..config import default_token_metadata, default_model_settings
 
 # NOTE: logger
 logging.basicConfig(
@@ -55,8 +55,8 @@ logger = logging.getLogger(__name__)
 
 # NOTE: constants
 # temperature and max_tokens for the LLM
-DEFAULT_TEMPERATURE = 0.0
-DEFAULT_MAX_TOKENS = 2048
+DEFAULT_TEMPERATURE = default_model_settings['temperature']
+DEFAULT_MAX_TOKENS = default_model_settings['max_tokens']
 
 # input tokens and output tokens
 DEFAULT_INPUT_TOKENS = default_token_metadata['input_tokens']
