@@ -11,7 +11,8 @@ from typing import (
 from fastapi import (
     FastAPI,
     HTTPException,
-    WebSocket
+    WebSocket,
+    Depends
 )
 from fastapi.responses import JSONResponse
 from pathlib import Path
@@ -45,6 +46,13 @@ from ..models import (
 from ..memory import generate_thread
 from ..utils import agent_message_analyzer, message_token_counter
 from ..config import default_token_metadata, default_model_settings
+# dependencies
+from .deps import (
+    get_state,
+    get_agents,
+    get_llm_config_dep,
+    get_mcp_source_dep
+)
 
 # NOTE: logger
 logging.basicConfig(
@@ -275,28 +283,28 @@ async def create_api(
             )
 
     @app.get("/agents")
-    async def get_agents():
+    async def get_all_agents(state=Depends(get_state)):
         """
         Endpoint to get all agents in the app state.
         """
         # NOTE: data agent
         data_agent = {
             "agent_name": DATA_AGENT_NAME,
-            "model_provider": app.state.model_provider,
-            "model_name": app.state.model_name,
-            "agent_prompt": app.state.data_agent_prompt,
-            "mcp_source": app.state.mcp_source,
-            "memory_mode": app.state.memory_mode
+            "model_provider": state.model_provider,
+            "model_name": state.model_name,
+            "agent_prompt": state.data_agent_prompt,
+            "mcp_source": state.mcp_source,
+            "memory_mode": state.memory_mode
         }
 
         # NOTE: equations agent
         equations_agent = {
             "agent_name": EQUATIONS_AGENT_NAME,
-            "model_provider": app.state.model_provider,
-            "model_name": app.state.model_name,
-            "agent_prompt": app.state.equations_agent_prompt,
-            "mcp_source": app.state.mcp_source,
-            "memory_mode": app.state.memory_mode
+            "model_provider": state.model_provider,
+            "model_name": state.model_name,
+            "agent_prompt": state.equations_agent_prompt,
+            "mcp_source": state.mcp_source,
+            "memory_mode": state.memory_mode
         }
 
         return JSONResponse(
@@ -309,7 +317,9 @@ async def create_api(
         )
 
     @app.get("/mcp-source")
-    async def get_mcp_source():
+    async def get_mcp_source(
+        mcp_source: Dict[str, dict] = Depends(get_mcp_source_dep)
+    ):
         """
         Endpoint to get the current MCP source configuration.
         """
@@ -317,24 +327,18 @@ async def create_api(
             content={
                 "message": "MCP source configuration retrieved successfully",
                 "success": True,
-                "data": app.state.mcp_source,
+                "data": mcp_source,
             },
             status_code=200
         )
 
     @app.get("/llm/config")
-    async def get_llm_config():
+    async def get_llm_config(
+        llm_config: LlmConfig = Depends(get_llm_config_dep)
+    ):
         """
         Endpoint to get the current LLM configuration.
         """
-        # model parameters
-        llm_config = LlmConfig(
-            model_provider=app.state.model_provider,
-            model_name=app.state.model_name,
-            temperature=app.state.temperature,
-            max_tokens=app.state.max_tokens
-        )
-
         # return the llm configuration
         return JSONResponse(
             content={
