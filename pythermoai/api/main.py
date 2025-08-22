@@ -206,12 +206,11 @@ async def create_api(
     async def agent_initialization():
         """
         Initialize the agents with the initial provided parameters.
+        Returns True if successful, False otherwise.
         """
         try:
             # NOTE: data agent
-            # check data agent not in app.state.agents
             if DATA_AGENT_NAME not in app.state.agents:
-                # ! create data agent
                 app.state.agents[DATA_AGENT_NAME] = await create_agent(
                     model_provider=app.state.model_provider,
                     model_name=app.state.model_name,
@@ -221,14 +220,11 @@ async def create_api(
                     memory_mode=app.state.memory_mode,
                     **kwargs
                 )
-                # log
                 logger.info(
                     f"data-agent agent created successfully with model: {model_name}, agent: {DATA_AGENT_NAME}")
 
             # NOTE: equations agent
-            # check equations agent not in app.state.agents
             if EQUATIONS_AGENT_NAME not in app.state.agents:
-                # ! create equations agent
                 app.state.agents[EQUATIONS_AGENT_NAME] = await create_agent(
                     model_provider=app.state.model_provider,
                     model_name=app.state.model_name,
@@ -238,22 +234,12 @@ async def create_api(
                     memory_mode=app.state.memory_mode,
                     **kwargs
                 )
-                # log
                 logger.info(
                     f"equations-agent agent created successfully with model: {model_name}, agent: {EQUATIONS_AGENT_NAME}")
-            return JSONResponse(
-                content={
-                    "message": "Agent initialized successfully",
-                    "success": True
-                },
-                status_code=200
-            )
+            return True
         except Exception as e:
             logger.error(f"Error initializing agent: {e}")
-            raise HTTPException(
-                status_code=500,
-                detail=f"Failed to initialize agent: {e}"
-            )
+            return False
 
     @app.get("/pythermoai")
     async def root():
@@ -273,7 +259,57 @@ async def create_api(
         """
         Endpoint to initialize the agent with the provided parameters.
         """
-        return await agent_initialization()
+        result = await agent_initialization()
+        if result:
+            return JSONResponse(
+                content={
+                    "message": "Agent initialized successfully",
+                    "success": True
+                },
+                status_code=200
+            )
+        else:
+            raise HTTPException(
+                status_code=500,
+                detail="Failed to initialize agent"
+            )
+
+    @app.get("/agents")
+    async def get_agents():
+        """
+        Endpoint to get all agents in the app state.
+        """
+        # NOTE: data agent
+        data_agent = {
+            "agent_name": DATA_AGENT_NAME,
+            "model_provider": app.state.model_provider,
+            "model_name": app.state.model_name,
+            "agent_prompt": app.state.data_agent_prompt,
+            "mcp_source": app.state.mcp_source,
+            "memory_mode": app.state.memory_mode
+        }
+
+        # NOTE: equations agent
+        equations_agent = {
+            "agent_name": EQUATIONS_AGENT_NAME,
+            "model_provider": app.state.model_provider,
+            "model_name": app.state.model_name,
+            "agent_prompt": app.state.equations_agent_prompt,
+            "mcp_source": app.state.mcp_source,
+            "memory_mode": app.state.memory_mode
+        }
+
+        return JSONResponse(
+            content={
+                "message": "Agent prompts retrieved successfully",
+                "success": True,
+                "data": {
+                    "data_agent": data_agent,
+                    "equations_agent": equations_agent
+                }
+            },
+            status_code=200
+        )
 
     @app.get("/mcp-source")
     async def get_mcp_source():
@@ -289,17 +325,24 @@ async def create_api(
             status_code=200
         )
 
-    @app.get("/llm-config")
+    @app.get("/llm/config")
     async def get_llm_config():
         """
         Endpoint to get the current LLM configuration.
         """
+        # model parameters
+        llm_config = LlmConfig(
+            model_provider=app.state.model_provider,
+            model_name=app.state.model_name,
+            temperature=app.state.temperature,
+            max_tokens=app.state.max_tokens
+        )
+
+        # return the llm configuration
         return JSONResponse(
             content={
-                "model_provider": app.state.model_provider,
-                "model_name": app.state.model_name,
-                "temperature": app.state.temperature,
-                "max_tokens": app.state.max_tokens,
+                "message": "LLM configuration retrieved successfully",
+                "data": llm_config.model_dump(),
                 "success": True
             },
             status_code=200
@@ -352,7 +395,7 @@ async def create_api(
             raise HTTPException(
                 status_code=500, detail=f"Failed to configure MCP source: {e}")
 
-    @app.post("/llm-config")
+    @app.post("/llm/config")
     async def set_llm_config(
         llm_config: LlmConfig
     ):
@@ -396,15 +439,24 @@ async def create_api(
                 # app state
                 app.state.max_tokens = max_tokens_
 
-            # NOTE: return success message
-            logger.info("LLM configured successfully")
-            return JSONResponse(
-                content={
-                    "message": f"LLM configured successfully with model: {model_provider} - {model_name}, temperature: {app.state.temperature}, max_tokens: {app.state.max_tokens}",
-                    "success": True
-                },
-                status_code=200
-            )
+            # SECTION: reinitialize agents with the new LLM configuration
+            result = await agent_initialization()
+            if result:
+                logger.info("LLM configured successfully")
+                return JSONResponse(
+                    content={
+                        "message": f"LLM configured successfully with model: {model_provider} - {model_name}, temperature: {app.state.temperature}, max_tokens: {app.state.max_tokens}",
+                        "success": True
+                    },
+                    status_code=200
+                )
+            else:
+                logger.error(
+                    "Failed to reinitialize agent after LLM config update")
+                raise HTTPException(
+                    status_code=500,
+                    detail="Failed to reinitialize agent after LLM config update"
+                )
         except Exception as e:
             logger.error(f"Error configuring LLM: {e}")
             raise HTTPException(
