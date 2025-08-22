@@ -303,10 +303,7 @@ async def create_api(
             content={
                 "message": "Agent prompts retrieved successfully",
                 "success": True,
-                "data": {
-                    "data_agent": data_agent,
-                    "equations_agent": equations_agent
-                }
+                "data": [data_agent, equations_agent]
             },
             status_code=200
         )
