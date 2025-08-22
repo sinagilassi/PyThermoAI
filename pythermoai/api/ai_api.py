@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 class ThermoAIAPI:
     '''
-    MoziChem AI API class that initializes a FastAPI application and sets up the necessary middleware.
+    ThermoAI AI API class that initializes a FastAPI application and sets up the necessary middleware.
     This class is designed to handle the initialization of the FastAPI app and the setup of CORS middleware.
     '''
     # NOTE: attributes
@@ -32,7 +32,7 @@ class ThermoAIAPI:
     ):
         '''
         This initializes the FastAPI application and sets up the necessary middleware.
-        It also prepares the MoziChem agent for handling requests.
+        It also prepares the THermoAI agent for handling requests.
 
         Parameters
         ----------

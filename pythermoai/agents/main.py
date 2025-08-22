@@ -59,7 +59,7 @@ async def create_agent(
     """
     try:
         # SECTION: create ThermoAgent
-        MoziChemAgent_ = ThermoAgent(
+        ThermoAgent_ = ThermoAgent(
             model_provider,
             model_name,
             agent_name,
@@ -70,7 +70,7 @@ async def create_agent(
         )
 
         # SECTION: initialize the agent
-        agent = await MoziChemAgent_.build_agent()
+        agent = await ThermoAgent_.build_agent()
 
         return agent
     except Exception as e:

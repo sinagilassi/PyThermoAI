@@ -117,7 +117,7 @@ async def create_api(
         - cors_origins: List[str], optional
             A list of allowed CORS origins. If None, defaults to allowing all origins.
         - name: str, optional
-            The name of the API, by default "MoziChem AI API".
+            The name of the API, by default "Thermo AI API".
         - version: str, optional
             The version of the API, by default "No version set".
         - description: str, optional
@@ -134,7 +134,7 @@ async def create_api(
     version = kwargs.get('version', None)
     description = kwargs.get('description', None)
 
-    # SECTION: Initialize the MoziChem AI API
+    # SECTION: Initialize the Thermo AI API
     ThermoAIAPI_ = ThermoAIAPI(
         cors_origins=cors_origins,
         name=name,
@@ -670,10 +670,10 @@ async def create_api(
                 agent = getattr(app.state, "agent", None)
 
             if agent is None:
-                logger.error("MoziChem agent is not created yet.")
+                logger.error("ThermoAI agent is not created yet.")
                 return ChatMessage(
                     role="assistant",
-                    content="MoziChem agent is not created yet.",
+                    content="ThermoAI agent is not created yet.",
                     thread_id=thread_id,
                     response_time=None,
                     timestamp=timestamp,

@@ -71,7 +71,7 @@ def thermo_chat(
         - cors_origins: List[str], optional
             A list of allowed CORS origins. If None, defaults to allowing all origins.
         - name: str, optional
-            The name of the API, by default "MoziChem AI API".
+            The name of the API, by default "Thermo AI API".
         - version: str, optional
             The version of the API, by default "No version set".
         - description: str, optional
@@ -82,7 +82,7 @@ def thermo_chat(
     Returns
     -------
     None
-        This function does not return anything. It opens web UI for MoziChem Chat.
+        This function does not return anything. It opens web UI for Thermo Chat.
     """
     try:
         # SECTION: Validate inputs
@@ -134,7 +134,7 @@ def thermo_chat(
         )
 
         # SECTION: frontend and backend settings
-        # NOTE: Open web UI for MoziChem Chat
+        # NOTE: Open web UI for ThermoAI Chat
         if open_browser:
             # log
             logger.info(f"Opening web UI at http://{host}:{port}")
