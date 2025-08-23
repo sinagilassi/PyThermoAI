@@ -57,6 +57,20 @@ mcp_source = {
     }
 }
 
+# arXiv remote mcp
+# mcp_source = {
+#     "arxiv-remote": {
+#         "command": "npx",
+#         "args": [
+#             "-y",
+#             "mcp-remote",
+#             "https://mcp.arxiv.org/mcp/"
+#         ],
+#         "transport": "stdio",
+#         "env": {}
+#     }
+# }
+
 # mcp_source = None
 
 # SECTION: Run the FastAPI application
