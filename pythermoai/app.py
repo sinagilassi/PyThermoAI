@@ -103,7 +103,7 @@ def thermo_chat(
 
         # log
         logger.info(
-            f"FastAPI application created successfully with model: {model_name}, agent: {agent_name}")
+            f"FastAPI application created successfully with model: {model_name} from provider: {model_provider}")
 
         # SECTION: Set up MIME types for static files
         mimetypes.add_type("text/css", ".css")

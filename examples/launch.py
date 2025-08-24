@@ -5,6 +5,10 @@ import logging
 from dotenv import load_dotenv
 # local
 from pythermoai import thermo_chat
+from pythermoai.agents import (
+    DATA_AGENT_PROMPT,
+    EQUATIONS_AGENT_PROMPT
+)
 
 # NOTE: logger
 logger = logging.getLogger(__name__)
@@ -80,8 +84,8 @@ if __name__ == "__main__":
     thermo_chat(
         model_provider=model_provider,
         model_name=model_name,
-        agent_name="ThermoAgent",
-        agent_prompt=agent_prompt,
+        data_agent_prompt=data_agent_prompt,
+        equations_agent_prompt=equations_agent_prompt,
         mcp_source=mcp_source,
         memory_mode=True,
         open_browser=True,
