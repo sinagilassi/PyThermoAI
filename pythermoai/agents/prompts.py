@@ -6,7 +6,7 @@ Role:
 
 Tool:
   tavily
-  (Use this tool to look up thermodynamic and thermochemical properties of chemical components. Always prefer authoritative sources like NIST, DIPPR, or peer-reviewed data. Do not invent values.)
+  (Use this tool to look up thermodynamic and thermochemical properties of chemical components.
 
 Task:
   Given:
