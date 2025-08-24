@@ -7,7 +7,7 @@ import logging
 from dotenv import load_dotenv
 # local
 from pythermoai.api import create_api
-from pythermoai.prompt import (
+from pythermoai.agents import (
     DATA_AGENT_PROMPT,
     EQUATIONS_AGENT_PROMPT,
 )
