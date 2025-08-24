@@ -7,10 +7,9 @@ import logging
 from dotenv import load_dotenv
 # local
 from pythermoai.api import create_api
-from prompts import (
+from pythermoai.prompt import (
     DATA_AGENT_PROMPT,
     EQUATIONS_AGENT_PROMPT,
-    EQUATIONS_AGENT_PROMPT_2
 )
 
 # NOTE: logger
@@ -57,29 +56,17 @@ mcp_source = {
     }
 }
 
-# arXiv remote mcp
-# mcp_source = {
-#     "arxiv-remote": {
-#         "command": "npx",
-#         "args": [
-#             "-y",
-#             "mcp-remote",
-#             "https://mcp.arxiv.org/mcp/"
-#         ],
-#         "transport": "stdio",
-#         "env": {}
-#     }
-# }
-
-# mcp_source = None
+# NOTE: agent prompt
+data_agent_prompt = None
+equations_agent_prompt = None
 
 # SECTION: Run the FastAPI application
 if __name__ == "__main__":
     app_instance = asyncio.run(create_api(
         model_provider=model_provider,
         model_name=model_name,
-        data_agent_prompt=DATA_AGENT_PROMPT,
-        equations_agent_prompt=EQUATIONS_AGENT_PROMPT,
+        data_agent_prompt=data_agent_prompt,
+        equations_agent_prompt=equations_agent_prompt,
         mcp_source=mcp_source,
         memory_mode=True
     ))

@@ -24,8 +24,8 @@ logger = logging.getLogger(__name__)
 def thermo_chat(
     model_provider: str,
     model_name: str,
-    agent_name: str,
-    agent_prompt: str,
+    data_agent_prompt: Optional[str] = None,
+    equations_agent_prompt: Optional[str] = None,
     mcp_source: Optional[
         Union[
         Dict[str, Dict[str, str]],
@@ -48,10 +48,10 @@ def thermo_chat(
         The provider of the LLM (e.g., "openai", "google", "anthropic", "grok").
     model_name : str
         The name of the model to be used for the agent.
-    agent_name : str
-        The name of the agent.
-    agent_prompt : str
-        The prompt to be used for the agent.
+    data_agent_prompt : str, optional
+        The prompt template for the data agent, by default None.
+    equations_agent_prompt : str, optional
+        The prompt template for the equations agent, by default None.
     mcp_source : Dict[str, Dict[str, str]] | Dict[str, Dict[str, str | List[str]]], | str | Path, optional
         A dictionary containing the MCP configurations or a path to a YAML file containing the MCP configurations.
     memory_mode : bool, optional
@@ -93,8 +93,8 @@ def thermo_chat(
         app_instance: FastAPI = asyncio.run(create_api(
             model_provider=model_provider,
             model_name=model_name,
-            agent_name=agent_name,
-            agent_prompt=agent_prompt,
+            data_agent_prompt=data_agent_prompt,
+            equations_agent_prompt=equations_agent_prompt,
             mcp_source=mcp_source,
             memory_mode=memory_mode,
             **kwargs

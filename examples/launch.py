@@ -72,10 +72,8 @@ mcp_source = {
 mcp_source = None
 
 # NOTE: agent prompt
-agent_prompt = """You are a helpful assistant. You can use MCP server tools and basic arithmetic to solve problems, retrieve data, and perform calculations.
-When a user asks a question, select the most appropriate tool or method, explain your reasoning briefly, and provide a clear final answer based on the results.
-Always be concise, accurate, and helpful in your responses.
-"""
+data_agent_prompt = None
+equations_agent_prompt = None
 
 # SECTION: Run the FastAPI application
 if __name__ == "__main__":
