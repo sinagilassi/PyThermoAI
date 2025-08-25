@@ -61,7 +61,16 @@ async def create_data_agent(agent_config: AgentConfig, request: Request):
             memory_mode=memory_mode,
             **kwargs
         )
+
+        # NOTE: update app state
         app.state.agents[EQUATIONS_AGENT_NAME] = agent
+        # config
+        app.state.model_provider = model_provider
+        app.state.model_name = model_name
+        app.state.data_agent_prompt = agent_prompt
+        app.state.mcp_source = mcp_source
+        app.state.memory_mode = memory_mode
+
         return JSONResponse(
             content={
                 "message": f"{EQUATIONS_AGENT_NAME} created successfully.",
