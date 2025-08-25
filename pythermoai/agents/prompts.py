@@ -173,7 +173,7 @@ Vapor-Pressure:
 
 GUARDRAILS (self-check before returning)
 - All inputs/outputs SI.
-- STRUCTURE.{COLUMNS, SYMBOL, UNIT, SCALE} align and end with result entry.
+- STRUCTURE. [COLUMNS, SYMBOL, UNIT, SCALE] align and end with result entry.
 - All parms[…] in BODY appear in STRUCTURE and VALUES.
 - VALUES rows contain actual numeric values (not symbols), consistent with STRUCTURE order.
 - VALUES rows start [No., Name, Formula, State] and end with Eq index.
