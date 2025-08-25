@@ -156,10 +156,18 @@ async def create_api(
         'max_tokens', DEFAULT_MAX_TOKENS)
 
     # add api config to app.state
+    api_config = kwargs.get('api_config', {})
+    # check if api_config is provided
+    if not api_config:
+        logger.warning("api_config not provided in kwargs, setting default values.")
+
     app.state.api_config = {
-        "port": kwargs.get("port", 8000),
-        "host": kwargs.get("host", "127.0.0.1"),
-        "apiUrl": kwargs.get("apiUrl", f"http://{kwargs.get('host', '127.0.0.1')}:{kwargs.get('port', 8000)}"),
+        "port": api_config.get("port", 8000),
+        "host": api_config.get("host", "127.0.0.1"),
+        "apiUrl": api_config.get(
+            "apiUrl",
+            f"http://{api_config.get('host', '127.0.0.1')}:{api_config.get('port', 8000)}"
+            ),
     }
 
     # model provider
