@@ -89,6 +89,6 @@ if __name__ == "__main__":
         mcp_source=mcp_source,
         memory_mode=True,
         open_browser=True,
-        port=8000,
+        port=8001,
         host="127.0.0.1"
     )
