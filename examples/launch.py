@@ -88,5 +88,5 @@ if __name__ == "__main__":
         equations_agent_prompt=equations_agent_prompt,
         mcp_source=mcp_source,
         memory_mode=True,
-        open_browser=True,
+        open_browser=False,
     )

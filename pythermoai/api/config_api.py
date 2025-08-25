@@ -17,6 +17,25 @@ config_router = APIRouter()
 # SECTION: routes
 
 
+@config_router.get("/config")
+async def read_config(request: Request):
+    try:
+        # NOTE: check state has config attribute
+        if not hasattr(request.app.state, 'api_config'):
+            raise HTTPException(
+                status_code=500, detail="Server configuration is not initialized.")
+
+        # NOTE: return the current configuration
+        return JSONResponse(
+            content=request.app.state.api_config,
+            status_code=200
+        )
+    except Exception as e:
+        logger.error(f"Error reading configuration: {e}")
+        raise HTTPException(
+            status_code=500, detail="Failed to read server configuration.")
+
+
 @config_router.get("/config/exit")
 async def shutdown(request: Request):
     try:

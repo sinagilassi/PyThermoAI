@@ -155,6 +155,12 @@ async def create_api(
     app.state.max_tokens = kwargs.get(
         'max_tokens', DEFAULT_MAX_TOKENS)
 
+    # add api config to app.state
+    app.state.api_config = {
+        "port": kwargs.get("port", 8000),
+        "host": kwargs.get("host", "127.0.0.1"),
+    }
+
     # model provider
     app.state.model_provider = model_provider
     # model name

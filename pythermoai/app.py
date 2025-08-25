@@ -89,6 +89,15 @@ def thermo_chat(
         # open browser
         open_browser = kwargs.get("open_browser", True)
 
+        # api config
+        api_config = {
+            "port": port,
+            "host": host,
+            "apiUrl": f"http://{host}:{port}",
+        }
+        # add to kwargs
+        kwargs.update(api_config)
+
         # SECTION: Create the FastAPI application instance
         app_instance: FastAPI = asyncio.run(create_api(
             model_provider=model_provider,
