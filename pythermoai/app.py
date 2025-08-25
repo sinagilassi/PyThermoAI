@@ -96,7 +96,7 @@ def thermo_chat(
             "apiUrl": f"http://{host}:{port}",
         }
         # add to kwargs
-        kwargs.update(api_config)
+        kwargs['api_config'] = api_config
 
         # SECTION: Create the FastAPI application instance
         app_instance: FastAPI = asyncio.run(create_api(

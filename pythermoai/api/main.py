@@ -159,6 +159,7 @@ async def create_api(
     app.state.api_config = {
         "port": kwargs.get("port", 8000),
         "host": kwargs.get("host", "127.0.0.1"),
+        "apiUrl": kwargs.get("apiUrl", f"http://{kwargs.get('host', '127.0.0.1)}:{kwargs.get('port', 8000)}"),
     }
 
     # model provider
