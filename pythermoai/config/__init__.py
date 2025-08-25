@@ -9,7 +9,8 @@ from .settings import (
 from .constants import (
     llm_providers,
     default_token_metadata,
-    default_model_settings
+    default_model_settings,
+    default_api_config
 )
 
 __all__ = [
@@ -20,5 +21,6 @@ __all__ = [
     "get_config",
     "llm_providers",
     "default_token_metadata",
-    "default_model_settings"
+    "default_model_settings",
+    "default_api_config"
 ]

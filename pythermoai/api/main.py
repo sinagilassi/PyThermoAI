@@ -45,7 +45,7 @@ from ..models import (
 )
 from ..memory import generate_thread
 from ..utils import agent_message_analyzer, message_token_counter
-from ..config import default_token_metadata, default_model_settings
+from ..config import default_token_metadata, default_model_settings, default_api_config
 # dependencies
 from .deps import (
     get_state,
@@ -155,8 +155,8 @@ async def create_api(
     app.state.max_tokens = kwargs.get(
         'max_tokens', DEFAULT_MAX_TOKENS)
 
-    # add api config to app.state
-    api_config = kwargs.get('api_config', {})
+    # NOTE: add api config to app.state
+    api_config = kwargs.get('api_config', default_api_config)
     # check if api_config is provided
     if not api_config:
         logger.warning("api_config not provided in kwargs, setting default values.")

@@ -17,3 +17,11 @@ default_model_settings = {
     "temperature": 0.0,
     "max_tokens": 2048
 }
+
+
+# SECTION: default api config
+default_api_config = {
+    "port": 8000,
+    "host": "127.0.0.1",
+    "apiUrl": "http://127.0.0.1:8000"
+}
