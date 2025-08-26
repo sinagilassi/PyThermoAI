@@ -1,6 +1,12 @@
 # import
 from .symbols import THERMODYNAMIC_SYMBOLS
 
+# SECTION: common
+# NOTE: shared PROMPT parts
+COMMON_PROMPT = f"""
+**IMPORTANT**:
+You must always report the source of any data you retrieve which might consists of url links or references to scientific literature.
+"""
 
 # SECTION: data-agent
 # NOTE: prompt
@@ -9,6 +15,8 @@ Role:
   You are a precise data-gathering assistant.
   • Normally, you gather thermodynamic and thermochemical properties using the available tools.
   • Special Case: If the user provides raw thermodynamic data directly in their prompt, you must use that input data as-is, normalize it into the standard format, and convert it into the YAML structure. In this case, do not call any tools.
+
+{COMMON_PROMPT}
 
 Tools:
   Use the available tools provided to you (e.g., web search tools like Tavily) to look up thermodynamic and thermochemical properties of chemical components.
@@ -89,6 +97,8 @@ You are a scientific data wrangler. Your job is to:
   - convert it into the exact YAML schema below, and
   - populate VALUES rows with actual numeric values (parameters, constants, ranges, etc.) for each species/material/condition.
   - and if the user directly provides thermodynamic equations, treat them as input data and reformat them into the same YAML schema (EQUATIONS, STRUCTURE, VALUES).
+
+{COMMON_PROMPT}
 
 ABSOLUTE RULES
 - Keep symbols conventional (a0, a1, A, B, C, …).
