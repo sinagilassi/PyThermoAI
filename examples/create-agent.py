@@ -37,17 +37,15 @@ model_name = "gpt-4o-mini"
 
 # NOTE: mcp source
 mcp_source = {
-    "eos-models-mcp": {
-        "transport": "streamable_http",
-        "url": "http://127.0.0.1:8000/eos-models-mcp/mcp/"
-    },
-    "flash-calculations-mcp": {
-        "transport": "streamable_http",
-        "url": "http://127.0.0.1:8000/flash-calculations-mcp/mcp/"
-    },
-    "thermodynamic-properties-mcp": {
-        "transport": "streamable_http",
-        "url": "http://127.0.0.1:8000/thermodynamic-properties-mcp/mcp/"
+    "tavily-remote": {
+        "command": "npx",
+        "args": [
+            "-y",
+            "mcp-remote",
+            f"https://mcp.tavily.com/mcp/?tavilyApiKey={os.getenv('TAVILY_API_KEY')}"
+        ],
+        "transport": "stdio",
+        "env": {}
     }
 }
 
