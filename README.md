@@ -9,6 +9,8 @@
 
 **PyThermoAI** is an intelligent Python package that revolutionizes thermodynamic data acquisition and processing by leveraging advanced AI agents and web search capabilities. This powerful tool seamlessly integrates thermodynamic data retrieval, equation solving, and database management into a unified platform.
 
+Built with **LangGraph** for creating sophisticated multi-agent workflows, PyThermoAI employs intelligent agents that can reason, plan, and execute complex thermodynamic tasks. The system utilizes **Tavily** as its primary web search engine, enabling agents to efficiently discover and retrieve thermodynamic data from authoritative online sources including NIST databases, DIPPR collections, and peer-reviewed scientific literature.
+
 ![PyThermoAI Architecture](https://drive.google.com/uc?export=view&id=1osFnvr4dl0iLtnHhdhr_5EWLK0QGGabh)
 
 ### Key Features
