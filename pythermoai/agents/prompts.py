@@ -106,7 +106,7 @@ ABSOLUTE RULES
 - Constants must retain their true units (e.g., J/mol·K for R).
 - EQUATIONS.BODY:
     • Inputs → args['<desc | sym | unit>']
-    • Parameters/constants → parms['<desc | sym | unit>']
+    • Parameters/Constants → parms['<desc | sym | unit>']
     • Result → res['<desc | sym | unit>']
 - STRUCTURE.COLUMNS must start [No., Name, Formula, State], then parameters (in equation order), then constants, and finally Eq.
 - STRUCTURE.SYMBOL mirrors COLUMNS.
