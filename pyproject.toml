@@ -41,7 +41,7 @@ Homepage = "https://github.com/sinagilassi/PyThermoAI"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["pythermoai*"]
-exclude = ["tests*", "examples*"]
+exclude = ["tests*", "examples*", "docs*", "static*"]
 
 [tool.setuptools.package-data]
 "pythermoai" = [
