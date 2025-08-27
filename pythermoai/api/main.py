@@ -159,7 +159,8 @@ async def create_api(
     api_config = kwargs.get('api_config', default_api_config)
     # check if api_config is provided
     if not api_config:
-        logger.warning("api_config not provided in kwargs, setting default values.")
+        logger.warning(
+            "api_config not provided in kwargs, setting default values.")
 
     app.state.api_config = {
         "port": api_config.get("port", 8000),
@@ -167,7 +168,7 @@ async def create_api(
         "apiUrl": api_config.get(
             "apiUrl",
             f"http://{api_config.get('host', '127.0.0.1')}:{api_config.get('port', 8000)}"
-            ),
+        ),
     }
 
     # model provider
@@ -234,31 +235,39 @@ async def create_api(
         try:
             # NOTE: data agent
             if DATA_AGENT_NAME not in app.state.agents:
-                app.state.agents[DATA_AGENT_NAME] = await create_agent(
-                    model_provider=app.state.model_provider,
-                    model_name=app.state.model_name,
-                    agent_name=DATA_AGENT_NAME,
-                    agent_prompt=app.state.data_agent_prompt,
-                    mcp_source=app.state.mcp_source,
-                    memory_mode=app.state.memory_mode,
-                    **kwargs
-                )
-                logger.info(
-                    f"data-agent agent created successfully with model: {model_name}, agent: {DATA_AGENT_NAME}")
+                # build data-agent (empty)
+                app.state.agents[DATA_AGENT_NAME] = {}
+
+            app.state.agents[DATA_AGENT_NAME] = await create_agent(
+                model_provider=app.state.model_provider,
+                model_name=app.state.model_name,
+                agent_name=DATA_AGENT_NAME,
+                agent_prompt=app.state.data_agent_prompt,
+                mcp_source=app.state.mcp_source,
+                memory_mode=app.state.memory_mode,
+                **kwargs
+            )
+            logger.info(
+                f"data-agent agent created successfully with model: {model_name}, agent: {DATA_AGENT_NAME}")
 
             # NOTE: equations agent
             if EQUATIONS_AGENT_NAME not in app.state.agents:
-                app.state.agents[EQUATIONS_AGENT_NAME] = await create_agent(
-                    model_provider=app.state.model_provider,
-                    model_name=app.state.model_name,
-                    agent_name=EQUATIONS_AGENT_NAME,
-                    agent_prompt=app.state.equations_agent_prompt,
-                    mcp_source=app.state.mcp_source,
-                    memory_mode=app.state.memory_mode,
-                    **kwargs
-                )
-                logger.info(
-                    f"equations-agent agent created successfully with model: {model_name}, agent: {EQUATIONS_AGENT_NAME}")
+                # build equations-agent (empty)
+                app.state.agents[EQUATIONS_AGENT_NAME] = {}
+
+            app.state.agents[EQUATIONS_AGENT_NAME] = await create_agent(
+                model_provider=app.state.model_provider,
+                model_name=app.state.model_name,
+                agent_name=EQUATIONS_AGENT_NAME,
+                agent_prompt=app.state.equations_agent_prompt,
+                mcp_source=app.state.mcp_source,
+                memory_mode=app.state.memory_mode,
+                **kwargs
+            )
+            logger.info(
+                f"equations-agent agent created successfully with model: {model_name}, agent: {EQUATIONS_AGENT_NAME}")
+
+            # return
             return True
         except Exception as e:
             logger.error(f"Error initializing agent: {e}")
